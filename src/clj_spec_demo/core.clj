@@ -41,6 +41,10 @@
 ;; :me :email "p.brc@blah.com"
 ;; :me :isa :person
 
+;; based on the schema:
+;; :name string
+;; :email email-type
+
 
 ;; Domain modelling
 
@@ -56,17 +60,21 @@
 
 (s/conform ::person {::name "peter" ::email "p.brc@blah.com"})
 
+(s/exercise ::name 10)
 
 ;; Validation
 
-(s/conform ::email "p")
+(s/valid? ::email "p")
 (s/valid? ::email "a@b.com")
-
 
 
 ;; Parsing
 
 "Can we parse the date part of ISO 8601 with clojure.spec?"
+
+(seq "2018-11-28")
+
+;; slightly outside the expected use cases but interesting
 
 ;;; some helpers
 (defn int-from-chars [cs]
@@ -78,9 +86,6 @@
 
 ;;; parsing a day with leading zeros
 
-;; http://matt.might.net/articles/implementation-of-regular-expression-matching-in-scheme-with-derivatives/
-;; http://www.ccs.neu.edu/home/turon/re-deriv.pdf
-;; http://matt.might.net/papers/might2011derivatives.pdf
 
 (s/def ::day
   (s/&
@@ -143,21 +148,25 @@
 
 
 ;; generating data is difficult for such a refined spec
-(s/exercise ::day 1)
+(s/exercise ::day 10)
 
 (defn char-numeric []
-  (gen/such-that #(= 2 (count %))
-                 (gen/not-empty
-                  (gen/vector
-                   (gen/fmap char
-                             (gen/choose 48 57))
-                   2))))
+  (gen/not-empty
+   (gen/vector
+    (gen/fmap char
+              (gen/choose 48 57))
+    2)))
 
 (gen/sample (char-numeric) 10)
 
 (s/exercise ::day 10 {::day char-numeric})
 
-;; Transformation
+;; http://matt.might.net/articles/implementation-of-regular-expression-matching-in-scheme-with-derivatives/
+;; http://www.ccs.neu.edu/home/turon/re-deriv.pdf
+;; http://matt.might.net/papers/might2011derivatives.pdf
+
+
+;;; Transformation
 
 ;; from https://gist.github.com/stuarthalloway/01a2b7233b1285a8b43dfc206ba0036e
 
